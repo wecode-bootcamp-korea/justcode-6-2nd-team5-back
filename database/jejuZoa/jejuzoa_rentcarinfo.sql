@@ -16,34 +16,30 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `users`
+-- Table structure for table `rentcarinfo`
 --
 
-DROP TABLE IF EXISTS `users`;
+DROP TABLE IF EXISTS `rentcarinfo`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `users` (
+CREATE TABLE `rentcarinfo` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `name` varchar(50) DEFAULT NULL,
-  `profileImg` varchar(200) DEFAULT NULL,
-  `birth` varchar(50) DEFAULT NULL,
-  `phoneNumber` varchar(100) DEFAULT NULL,
-  `gender` varchar(45) DEFAULT NULL,
-  `email` varchar(200) DEFAULT NULL,
-  `password` varchar(100) DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `carName` varchar(50) DEFAULT NULL,
+  `carPhoto` varchar(100) DEFAULT NULL,
+  `ridePeopleNumber` int DEFAULT NULL,
+  `oilType` varchar(50) DEFAULT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `users`
+-- Dumping data for table `rentcarinfo`
 --
 
-LOCK TABLES `users` WRITE;
-/*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (1,'oh',NULL,'19920323','010-9898-9898','male','nnn@nnnn.com','$2a$12$xmgjV84vn9g21JpjzpseDOWWzroad0/0syWbcXwbV27Dsy2jsSX4G','2022-09-20 04:03:17'),(2,'cat',NULL,'19900101','010-1111-2222','male','nnn@nnne.com','$2a$12$S25KsDFHim10xxnQf3gMduTx9Se8WZO72qXZ28mX72Hg7BlmJN5iC','2022-09-20 04:23:02');
-/*!40000 ALTER TABLE `users` ENABLE KEYS */;
+LOCK TABLES `rentcarinfo` WRITE;
+/*!40000 ALTER TABLE `rentcarinfo` DISABLE KEYS */;
+INSERT INTO `rentcarinfo` VALUES (1,'쏘나타 뉴 라이즈','https://static-file.jejupass.com/download/649853',5,'LPG'),(2,'모닝 어반','https://static-file.jejupass.com/download/651555',5,'휘발유'),(3,'SM3','https://static-file.jejupass.com/download/650997',5,'전기차'),(4,'엑센트','https://static-file.jejupass.com/download/117952',5,'휘발유'),(5,'올 뉴 아반떼CN7','https://static-file.jejupass.com/download/649942',5,'휘발유'),(6,'더 뉴 K5 2세대','https://static-file.jejupass.com/download/649780',5,'LPG'),(7,'벨로스터','https://static-file.jejupass.com/download/660422',5,'휘발유'),(8,'더 뉴 아반떼 AD','https://static-file.jejupass.com/download/1029347',5,'휘발유');
+/*!40000 ALTER TABLE `rentcarinfo` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -55,4 +51,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-09-20 16:30:53
+-- Dump completed on 2022-09-20 16:30:50
