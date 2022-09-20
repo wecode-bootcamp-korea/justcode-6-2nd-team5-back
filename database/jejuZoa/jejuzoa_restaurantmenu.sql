@@ -16,34 +16,28 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
--- Table structure for table `users`
+-- Table structure for table `restaurantmenu`
 --
 
-DROP TABLE IF EXISTS `users`;
+DROP TABLE IF EXISTS `restaurantmenu`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `users` (
+CREATE TABLE `restaurantmenu` (
   `id` int NOT NULL AUTO_INCREMENT,
-  `name` varchar(50) DEFAULT NULL,
-  `profileImg` varchar(200) DEFAULT NULL,
-  `birth` varchar(50) DEFAULT NULL,
-  `phoneNumber` varchar(100) DEFAULT NULL,
-  `gender` varchar(45) DEFAULT NULL,
-  `email` varchar(200) DEFAULT NULL,
-  `password` varchar(100) DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `restaurantId` int NOT NULL,
+  `menu` varchar(50) DEFAULT NULL,
+  `price` int NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `users`
+-- Dumping data for table `restaurantmenu`
 --
 
-LOCK TABLES `users` WRITE;
-/*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES (1,'oh',NULL,'19920323','010-9898-9898','male','nnn@nnnn.com','$2a$12$xmgjV84vn9g21JpjzpseDOWWzroad0/0syWbcXwbV27Dsy2jsSX4G','2022-09-20 04:03:17'),(2,'cat',NULL,'19900101','010-1111-2222','male','nnn@nnne.com','$2a$12$S25KsDFHim10xxnQf3gMduTx9Se8WZO72qXZ28mX72Hg7BlmJN5iC','2022-09-20 04:23:02');
-/*!40000 ALTER TABLE `users` ENABLE KEYS */;
+LOCK TABLES `restaurantmenu` WRITE;
+/*!40000 ALTER TABLE `restaurantmenu` DISABLE KEYS */;
+/*!40000 ALTER TABLE `restaurantmenu` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -55,4 +49,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2022-09-20 16:30:53
+-- Dump completed on 2022-09-20 16:30:54
