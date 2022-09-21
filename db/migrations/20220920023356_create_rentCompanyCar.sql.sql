@@ -5,9 +5,9 @@ create table rentCompanyCar(
   rentCarCompanyId int not null,
   rentCarYearInfo  int not null,
   totalReserve int,
-  reviewPoint double
-  FOREIGN KEY (rentCarInfoId) REFERENCES rentCarInfo(id) ON UPDATE CASCADE DELETE CASCADE,
-  FOREIGN KEY (rentCarCompanyId) REFERENCES rentCarCompany(id) ON UPDATE CASCADE DELETE CASCADE
+  reviewPoint double,
+  FOREIGN KEY (rentCarInfoId) REFERENCES rentCarInfo(id) ON DELETE CASCADE ON UPDATE CASCADE,
+  FOREIGN KEY (rentCarCompanyId) REFERENCES rentCarCompany(id) ON DELETE CASCADE ON UPDATE CASCADE
 );
 
 -- migrate:down

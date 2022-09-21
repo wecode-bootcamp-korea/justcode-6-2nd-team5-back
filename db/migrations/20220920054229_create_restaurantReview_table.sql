@@ -3,7 +3,7 @@ create table restaurantReview(
   id int primary key auto_increment not null,
   userId int not null,
   restaurantId int not null,
-  review varchar,
+  review varchar(3000),
   tastePoint double not null,
   servicePoint double not null,
   moodPoint double not null,

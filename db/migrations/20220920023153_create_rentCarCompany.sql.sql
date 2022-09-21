@@ -1,8 +1,8 @@
 -- migrate:up
 CREATE TABLE rentCarCompany (
   id INT PRIMARY KEY NOT NULL AUTO_INCREMENT,
-  rentCarCompany VARCHAR NOT NULL,
-  rentCarCompanyAddress VARCHAR NOT NULL
+  rentCarCompany VARCHAR(50) NOT NULL,
+  rentCarCompanyAddress VARCHAR(300) NOT NULL
 );
 
 -- migrate:down

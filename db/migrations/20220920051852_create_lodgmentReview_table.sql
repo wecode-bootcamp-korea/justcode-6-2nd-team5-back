@@ -2,9 +2,9 @@
 create table lodgmentReview(
   id int primary key auto_increment not null,
   userId int not null,
-  category varchar not null,
+  category varchar(100) not null,
   lodgmentId int not null,
-  review varchar,
+  review varchar(3000),
   cleanPoint double not null,
   facilityPoint double not null,
   servicePoint double not null,
