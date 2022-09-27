@@ -11,61 +11,42 @@ const registeRentCarCompany = async (params) => {
 };
 
 const getRentCarList = async (params) => {
-  // let filterList = await rentCarDao.getRentFilterList(params);
-
-  // filterList.map((el) => {
-  //   el.filterTypes = JSON.parse(el.filterTypes);
-  // });
-  // let companyList = await rentCarDao.getRentCompanyList(params);
-  // let realcompanlist =[];
-  // for(let i=0;i<companyList.length;i++){
-  //   for(let j=1;j<companyList.length;j++){
-  //     if(companyList[i].carname === companyList[j].carname && companyList[i].optionList === companyList[j].optionList){
-
-  //     }
-  //   }
-  // }
-  // let testfilter = await rentCarDao.testfilter(params);
   let testdata = await rentCarDao.test(params);
+  console.log(testdata);
   testdata[0].filterTypes = JSON.parse(testdata[0].filterTypes);
   testdata[0].carList = JSON.parse(testdata[0].carList);
-
-  if (testdata[0].carList[0].rentCarCompanyList == undefined) {
-    // testdata[0].carList = [];
-    // testdata[0].filterTypes[0].slideList = [0, 0];
-    // testdata[0].filterTypes[3].slideList = [0, 0];
-  } else {
-    testdata.map((el) => {
-      // el.aa = JSON.parse(el.aa);
-      // el.carList = JSON.parse(el.carList);
-      el.carList.map((options) => {
-        let optionid = [];
-        options.option.split(",").forEach((element) => {
-          if (element === "1") {
-            optionid.push("블루투스");
-          } else if (element === "2") {
-            optionid.push("후방센서");
-          } else if (element === "3") {
-            optionid.push("후방카메라");
-          } else if (element === "4") {
-            optionid.push("블랙박스");
-          } else if (element === "5") {
-            optionid.push("열선시트");
-          } else if (element === "6") {
-            optionid.push("열선핸들");
-          } else if (element === "7") {
-            optionid.push("통풍시트");
-          } else if (element === "8") {
-            optionid.push("네비게이션");
-          } else if (element === "9") {
-            optionid.push("금연차량");
-          }
+  if (testdata[0].filterTypes[0].slideList)
+    if (testdata[0].carList[0].rentCarCompanyList == undefined) {
+      testdata[0].carList = [];
+    } else {
+      testdata.map((el) => {
+        el.carList.map((options) => {
+          let optionid = [];
+          options.option.split(",").forEach((element) => {
+            if (element === "1") {
+              optionid.push("블루투스");
+            } else if (element === "2") {
+              optionid.push("후방센서");
+            } else if (element === "3") {
+              optionid.push("후방카메라");
+            } else if (element === "4") {
+              optionid.push("블랙박스");
+            } else if (element === "5") {
+              optionid.push("열선시트");
+            } else if (element === "6") {
+              optionid.push("열선핸들");
+            } else if (element === "7") {
+              optionid.push("통풍시트");
+            } else if (element === "8") {
+              optionid.push("네비게이션");
+            } else if (element === "9") {
+              optionid.push("금연차량");
+            }
+          });
+          options.option = optionid;
         });
-        options.option = optionid;
       });
-      // el.filterTypes = JSON.parse(el.filterTypes);
-    });
-  }
+    }
   return testdata;
 };
 
@@ -187,6 +168,9 @@ const rentcarfiltereddata = async (params) => {
   }
   return data;
 };
+
+const rentCarReserve = async (params) => {};
+
 module.exports = {
   registeRentCar,
   registeRentCarCompany,
@@ -196,4 +180,5 @@ module.exports = {
   getRentCarDetail,
   rentcarfiltereddata,
   rentcarReviewDelete,
+  rentCarReserve,
 };

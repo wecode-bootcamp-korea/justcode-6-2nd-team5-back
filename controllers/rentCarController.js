@@ -118,6 +118,19 @@ const rentcarfiltereddata = asyncWrap(async (req, res) => {
   }
 });
 
+/** 렌터카 예약 */
+const rentCarReserve = asyncWrap(async (req, res) => {
+  const { token } = req.headers;
+  const { rentcompanycarid } = req.body;
+  try {
+    await rentCarService.rentCarReserve(params);
+    res.status(201).json({ message: "렌터카 예약 완료되었습니다." });
+  } catch (err) {
+    console.log(err);
+    res.status(err.status || 500).json(err.message);
+  }
+});
+
 module.exports = {
   registeRentCar,
   registeRentCarCompany,
@@ -127,4 +140,5 @@ module.exports = {
   getRentCarDetail,
   rentcarfiltereddata,
   rentcarReviewDelete,
+  rentCarReserve,
 };

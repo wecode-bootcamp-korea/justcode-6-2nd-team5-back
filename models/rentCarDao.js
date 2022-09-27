@@ -127,14 +127,14 @@ const test = async (params) => {
         'type', '누적예약',
         'slideList', json_array(min(rentcompanycar.totalReserve), max(rentcompanycar.totalReserve))) as filterReserve
         from rentcompanycar
-        join rentcarprice on rentcompanycar.id = rentcarprice.rentcompanycarId
-        join rentcarinfo on rentcompanycar.rentcarinfoid = rentcarinfo.id
+        left join rentcarprice on rentcompanycar.id = rentcarprice.rentcompanycarId
+        left join rentcarinfo on rentcompanycar.rentcarinfoid = rentcarinfo.id
         where rentcarprice.insuranceid = ? and rentcarprice.ageid in (?) and rentcarprice.experienceid in (?) and rentcarinfo.carType in (?)
     ),
 
     h as(
       select distinct carList.carname, carList.carphoto, carList.ridepeoplenumber, carList.oiltype, carList.companyandprice, carList.options
-        from (select a.carname, a.carphoto, a.ridepeoplenumber, a.oiltype, b.companyandprice, c.options from a join b on a.id = b.id join c on a.id = c.id) as carList
+        from (select a.carname, a.carphoto, a.ridepeoplenumber, a.oiltype, b.companyandprice, c.options from a left join b on a.id = b.id left join c on a.id = c.id) as carList
     ),
 
     i as(
@@ -431,6 +431,8 @@ const getRentCarDetail = async (rentCompanyCarId) => {
   return rentcarDetail;
 };
 
+const rentCarReserve = async (params) => {};
+
 module.exports = {
   registeRentCar,
   registeRentCarCompany,
@@ -440,4 +442,5 @@ module.exports = {
   getRentCarDetail,
   rentcarfiltereddata,
   rentcarReviewDelete,
+  rentCarReserve,
 };
