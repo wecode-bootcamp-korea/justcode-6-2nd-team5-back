@@ -169,7 +169,9 @@ const rentcarfiltereddata = async (params) => {
   return data;
 };
 
-const rentCarReserve = async (params) => {};
+const rentCarReserve = async (params) => {
+  await rentCarDao.rentCarReserve(params);
+};
 
 module.exports = {
   registeRentCar,

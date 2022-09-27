@@ -93,7 +93,7 @@ const rentcarReviewDelete = asyncWrap(async (req, res) => {
 });
 
 /** 상세페이지 */
-const getRentCarDetail = async (req, res) => {
+const getRentCarDetail = asyncWrap(async (req, res) => {
   const { rentCompanyCarId } = req.query;
   try {
     const rentcarDetail = await rentCarService.getRentCarDetail(
@@ -104,7 +104,7 @@ const getRentCarDetail = async (req, res) => {
     console.log(err);
     res.status(500).json({ message: "err" });
   }
-};
+});
 
 /** 필터링 후 데이터 */
 const rentcarfiltereddata = asyncWrap(async (req, res) => {

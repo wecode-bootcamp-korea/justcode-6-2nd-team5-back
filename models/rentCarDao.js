@@ -431,7 +431,12 @@ const getRentCarDetail = async (rentCompanyCarId) => {
   return rentcarDetail;
 };
 
-const rentCarReserve = async (params) => {};
+const rentCarReserve = async (params) => {
+  // await myDataSource.query(
+  //   `
+  //   `
+  // );
+};
 
 module.exports = {
   registeRentCar,
