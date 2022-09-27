@@ -12,7 +12,7 @@ const myDataSource = new DataSource({
 myDataSource
   .initialize()
   .then(() => {
-    console.log('Data Source has been initialized!');
+    console.log('loginLogoutDao has been initialized!');
   })
   .catch(() => {
     console.log('Database initiate fail');

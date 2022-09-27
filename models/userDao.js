@@ -12,7 +12,7 @@ const myDataSource = new DataSource({
 myDataSource
   .initialize()
   .then(() => {
-    console.log('Data Source has been initialized!');
+    console.log('userDao has been initialized!');
   })
   .catch(() => {
     console.log('Database initiate fail');
@@ -56,6 +56,16 @@ const sendUserName = async id => {
   );
   return userId;
 };*/
+
+const userProfileImg = async (profileImg) => {
+  const userProfileImg = await myDataSource.query(
+    `
+    INSERT INTO USERS(profileImg)
+    VALUES (?)
+    `,
+    [profileImg]
+  )
+}
 
 module.exports = {
   createUser,
