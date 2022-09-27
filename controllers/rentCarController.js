@@ -3,9 +3,11 @@ const {
   rentCarVo,
   rentCarCompanyVo,
   getRentCarListVo,
+  rentcarfiltereddataVo,
 } = require("../vo/rentCarVo");
 const asyncWrap = require("./async-wrap");
 
+/** 차량 등록 */
 const registeRentCar = asyncWrap(async (req, res) => {
   const params = rentCarVo(req.body);
 
@@ -18,6 +20,7 @@ const registeRentCar = asyncWrap(async (req, res) => {
   }
 });
 
+/** 업체등록 */
 const registeRentCarCompany = asyncWrap(async (req, res) => {
   const params = rentCarCompanyVo(req.body);
 
@@ -30,32 +33,85 @@ const registeRentCarCompany = asyncWrap(async (req, res) => {
   }
 });
 
+/** 검색 필터데이터 및 차량 업체 정보*/
 const getRentCarList = asyncWrap(async (req, res) => {
-  const { insurance, age, experience } = req.query;
-  const { startPrice, endPrice, rentCarYearInfo, option } = req.body;
-  const parameters = {
-    insurance,
-    age,
-    experience,
-    startPrice,
-    endPrice,
-    rentCarYearInfo,
-    option,
-  };
-  const params = getRentCarListVo(parameters);
+  const params = getRentCarListVo(req.query);
   try {
-    const rentCarList = await rentCarService.getRentCarList(params);
-    res.status(200).json(rentCarList);
+    const filterList = await rentCarService.getRentCarList(params);
+    res.status(200).json(filterList);
   } catch (err) {
     console.log(err);
     res.status(err.status || 500).json(err.message);
   }
 });
 
+/** 추천최저가차량 */
 const getRentCar = asyncWrap(async (req, res) => {
   try {
     const data = await rentCarService.getRentCar();
     res.status(200).json(data);
+  } catch (err) {
+    console.log(err);
+    res.status(err.status || 500).json(err.message);
+  }
+});
+
+/** 리뷰 작성 */
+const rentcarReview = asyncWrap(async (req, res) => {
+  const { token } = req.headers;
+  const { rentcarid } = req.params;
+  const { review, reviewPhoto, kindPoint, cleanPoint, conveniencePoint } =
+    req.body;
+  try {
+    await rentCarService.rentcarReview(
+      token,
+      rentcarid,
+      review,
+      reviewPhoto,
+      kindPoint,
+      cleanPoint,
+      conveniencePoint
+    );
+    res.status(201).json({ message: "리뷰 등록 성공했습니다." });
+  } catch (err) {
+    console.log(err);
+    res.status(err.status || 500).json(err.message);
+  }
+});
+
+/** 리뷰 삭제 */
+const rentcarReviewDelete = asyncWrap(async (req, res) => {
+  const { token } = req.headers;
+  const { reviewid } = req.params;
+  try {
+    await rentCarService.rentcarReviewDelete(token, reviewid);
+    res.status(204).json();
+  } catch (err) {
+    console.log(err);
+    res.status(err.status || 500).json(err.message);
+  }
+});
+
+/** 상세페이지 */
+const getRentCarDetail = async (req, res) => {
+  const { rentCompanyCarId } = req.query;
+  try {
+    const rentcarDetail = await rentCarService.getRentCarDetail(
+      rentCompanyCarId
+    );
+    res.status(200).json(rentcarDetail);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "err" });
+  }
+};
+
+/** 필터링 후 데이터 */
+const rentcarfiltereddata = asyncWrap(async (req, res) => {
+  const params = rentcarfiltereddataVo(req.query);
+  try {
+    const filtereddata = await rentCarService.rentcarfiltereddata(params);
+    res.status(200).json(filtereddata);
   } catch (err) {
     console.log(err);
     res.status(err.status || 500).json(err.message);
@@ -67,4 +123,8 @@ module.exports = {
   registeRentCarCompany,
   getRentCarList,
   getRentCar,
+  rentcarReview,
+  getRentCarDetail,
+  rentcarfiltereddata,
+  rentcarReviewDelete,
 };

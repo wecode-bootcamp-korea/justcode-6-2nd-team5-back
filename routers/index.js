@@ -9,6 +9,6 @@ const rentCarRouter = require("./rentCarRouter");
 router.use("/users", userRouter);
 router.use("/users", loginLogoutRouter);
 router.use("/token", tokenRouter);
-router.use("/rentCar", rentCarRouter);
+router.use("/rentcar", rentCarRouter);
 
 module.exports = router;
