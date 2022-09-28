@@ -11,15 +11,15 @@ const registeRentCarCompany = async (params) => {
 };
 
 const getRentCarList = async (params) => {
-  let testdata = await rentCarDao.test(params);
-  console.log(testdata);
-  testdata[0].filterTypes = JSON.parse(testdata[0].filterTypes);
-  testdata[0].carList = JSON.parse(testdata[0].carList);
-  if (testdata[0].filterTypes[0].slideList)
-    if (testdata[0].carList[0].rentCarCompanyList == undefined) {
-      testdata[0].carList = [];
+  let carList = await rentCarDao.searchCarList(params);
+  carList[0].filterTypes = JSON.parse(carList[0].filterTypes);
+  carList[0].carList = JSON.parse(carList[0].carList);
+
+  if (carList[0].filterTypes[0].slideList)
+    if (carList[0].carList[0].rentCarCompanyList == undefined) {
+      carList[0].carList = [];
     } else {
-      testdata.map((el) => {
+      carList.map((el) => {
         el.carList.map((options) => {
           let optionid = [];
           options.option.split(",").forEach((element) => {
@@ -47,7 +47,7 @@ const getRentCarList = async (params) => {
         });
       });
     }
-  return testdata;
+  return carList;
 };
 
 const getRentCar = async () => {
@@ -58,7 +58,6 @@ const rentcarReview = async (
   token,
   rentcarId,
   review,
-  reviewPhoto,
   kindPoint,
   cleanPoint,
   conveniencePoint
@@ -68,16 +67,17 @@ const rentcarReview = async (
   const userId = tokenId.userId;
   const newreviewpoint = (kindPoint + cleanPoint + conveniencePoint) / 3;
 
-  await rentCarDao.rentcarReview(
+  const reviewdata = await rentCarDao.rentcarReview(
     userId,
     rentcarId,
     review,
-    reviewPhoto,
     kindPoint,
     cleanPoint,
     conveniencePoint,
     newreviewpoint
   );
+  reviewdata[0].review = JSON.parse(reviewdata[0].review);
+  return reviewdata;
 };
 
 const rentcarReviewDelete = async (token, reviewid) => {
@@ -85,7 +85,9 @@ const rentcarReviewDelete = async (token, reviewid) => {
   const tokenId = jwt.verify(token, key);
   const userId = tokenId.userId;
 
-  await rentCarDao.rentcarReviewDelete(userId, reviewid);
+  const reviewdata = await rentCarDao.rentcarReviewDelete(userId, reviewid);
+  reviewdata[0].review = JSON.parse(reviewdata[0].review);
+  return reviewdata;
 };
 
 const getRentCarDetail = async (rentCompanyCarId) => {
@@ -170,7 +172,29 @@ const rentcarfiltereddata = async (params) => {
 };
 
 const rentCarReserve = async (params) => {
-  await rentCarDao.rentCarReserve(params);
+  const key = process.env.SECRET_KEY;
+  const tokenId = jwt.verify(params.token, key);
+  const userId = tokenId.userId;
+  const rentdate = params.rentStartDate + " " + params.rentStartTime;
+  const returndate = params.rentEndDate + " " + params.rentEndTime;
+  console.log(rentdate);
+  console.log(returndate);
+  const { token, rentStartTime, rentEndTime, ...newparams } = params;
+  newparams["userId"] = userId;
+  newparams["rentdate"] = rentdate;
+  newparams["returndate"] = returndate;
+  console.log("newparams", newparams);
+  await rentCarDao.rentCarReserve(newparams);
+};
+
+const getMyRentCarReview = async (token) => {
+  const key = process.env.SECRET_KEY;
+  const tokenId = jwt.verify(token, key);
+  const userId = tokenId.userId;
+
+  const reviewData = await rentCarDao.getMyRentCarReview(userId);
+  // reviewData[0].review = JSON.parse(reviewData[0].review);
+  return reviewData;
 };
 
 module.exports = {
@@ -183,4 +207,5 @@ module.exports = {
   rentcarfiltereddata,
   rentcarReviewDelete,
   rentCarReserve,
+  getMyRentCarReview,
 };

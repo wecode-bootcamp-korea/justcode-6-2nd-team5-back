@@ -1,3 +1,5 @@
+const { error } = require("console");
+
 const rentCarVo = (object) => {
   let params = new Map();
 
@@ -78,62 +80,72 @@ const getRentCarListVo = (object) => {
     err.status = 400;
     throw err;
   }
-  if (rentStartDate) {
-    params.set("rentStartDate", rentStartDate);
-  }
-  if (rentEndDate) {
-    params.set("rentEndDate", rentEndDate);
-  }
-  if (rentStartTime) {
-    params.set("rentStartTime", rentStartTime);
-  }
-  if (rentEndTime) {
-    params.set("rentEndTime", rentEndTime);
-  }
-  if (insurance) {
-    if (insurance === "일반자차") {
-      insurance = 1;
-    } else if (insurance === "완전자차") {
-      insurance = 2;
-    } else if (insurance === "부분무제한") {
-      insurance = 3;
-    } else if (insurance === "슈퍼무제한") {
-      insurance = 4;
-    }
+
+  params.set("rentStartDate", rentStartDate);
+
+  params.set("rentEndDate", rentEndDate);
+
+  params.set("rentStartTime", rentStartTime);
+
+  params.set("rentEndTime", rentEndTime);
+
+  if (insurance === "일반자차") {
+    insurance = 1;
+    params.set("insurance", insurance);
+  } else if (insurance === "완전자차") {
+    insurance = 2;
+    params.set("insurance", insurance);
+  } else if (insurance === "부분무제한") {
+    insurance = 3;
+    params.set("insurance", insurance);
+  } else if (insurance === "슈퍼무제한") {
+    insurance = 4;
     params.set("insurance", insurance);
   }
-  if (age) {
-    if (age === "만 21세~25세") {
-      age = [1, 2, 3];
-    } else if (age === "만 26세 이상") {
-      age = [1, 2, 3, 4];
-    }
+  if (!params.get("insurance")) {
+    const err = new Error("보험 값이 잘못 입력되었습니다");
+    err.status = 400;
+    throw err;
+  }
+  if (age === "만 21세~25세") {
+    age = [1, 2, 3];
+    params.set("age", age);
+  } else if (age === "만 26세 이상") {
+    age = [1, 2, 3, 4];
     params.set("age", age);
   }
-  if (experience) {
-    if (experience === "1년 미만") {
-      experience = [1];
-    } else if (experience === "2년 미만") {
-      experience = [1, 2];
-    } else if (experience === "2년 이상") {
-      experience = [1, 2, 3, 4];
-    }
+  if (!params.get("age")) {
+    const err = new Error("나이 값이 잘못 입력되었습니다");
+    err.status = 400;
+    throw err;
+  }
+  if (experience === "1년 미만") {
+    experience = [1];
+    params.set("experience", experience);
+  } else if (experience === "2년 미만") {
+    experience = [1, 2];
+    params.set("experience", experience);
+  } else if (experience === "2년 이상") {
+    experience = [1, 2, 3, 4];
     params.set("experience", experience);
   }
-  if (carType) {
-    if (carType !== "전체") {
-      params.set("carType", carType);
-    } else if (carType === "전체") {
-      params.set("carType", [
-        "경형",
-        "소형",
-        "준중형",
-        "중형",
-        "고급",
-        "SUV/캠핑",
-        "승합",
-      ]);
-    }
+  if (!params.get("experience")) {
+    const err = new Error("경력 값이 잘못 입력되었습니다");
+    err.status = 400;
+    throw err;
+  }
+  if (carType !== "전체") {
+    params.set("carType", carType);
+  } else if (carType === "전체") {
+    params.set("carType", [
+      "경형",
+      "소형",
+      "준중형",
+      "중형",
+      "고급",
+      "SUV/캠핑",
+      "승합",
+    ]);
   }
   return params;
 };
