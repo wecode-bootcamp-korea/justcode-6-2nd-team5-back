@@ -35,6 +35,7 @@ const registeRentCarCompany = asyncWrap(async (req, res) => {
 
 /** 검색 필터데이터 및 차량 업체 정보*/
 const getRentCarList = asyncWrap(async (req, res) => {
+  console.log("searchList query: ", req.query);
   const params = getRentCarListVo(req.query);
   try {
     const carList = await rentCarService.getRentCarList(params);
@@ -107,9 +108,11 @@ const getRentCarDetail = asyncWrap(async (req, res) => {
 
 /** 필터링 후 데이터 */
 const rentcarfiltereddata = asyncWrap(async (req, res) => {
+  console.log("filteredList query: ", req.query);
   const params = rentcarfiltereddataVo(req.query);
   try {
     const filtereddata = await rentCarService.rentcarfiltereddata(params);
+    console.log("filtered data", filtereddata);
     res.status(200).json(filtereddata);
   } catch (err) {
     console.log(err);
@@ -119,8 +122,8 @@ const rentcarfiltereddata = asyncWrap(async (req, res) => {
 
 /** 렌터카 예약 */
 const rentCarReserve = asyncWrap(async (req, res) => {
+  const { token } = req.headers;
   const {
-    token,
     rentcompanycarid,
     rentStartDate,
     rentEndDate,
@@ -128,6 +131,13 @@ const rentCarReserve = asyncWrap(async (req, res) => {
     rentEndTime,
     price,
   } = req.body;
+  console.log(req.body);
+  console.log(rentcompanycarid);
+  console.log(rentStartDate);
+  console.log(rentEndDate);
+  console.log(rentStartTime);
+  console.log(rentEndTime);
+  console.log(price);
 
   const params = {
     token,
@@ -149,10 +159,36 @@ const rentCarReserve = asyncWrap(async (req, res) => {
 });
 
 const getMyRentCarReview = asyncWrap(async (req, res) => {
-  const { token } = req.body;
+  const { token } = req.headers;
   try {
     const reviewData = await rentCarService.getMyRentCarReview(token);
     res.status(200).json(reviewData);
+  } catch (err) {
+    console.log(err);
+    res.status(err.status || 500).json(err.message);
+  }
+});
+
+const getMyRentCarReserve = asyncWrap(async (req, res) => {
+  const { token } = req.headers;
+  const { reservationid } = req.params;
+
+  try {
+    const reservedata = await rentCarService.getMyRentCarReserve(
+      token,
+      reservationid
+    );
+    res.status(200).json(reservedata);
+  } catch (err) {
+    console.log(err);
+    res.status(err.status || 500).json(err.message);
+  }
+});
+
+const insertreview = asyncWrap(async (req, res) => {
+  try {
+    await rentCarService.insertreview();
+    res.status(200).json({ message: "success" });
   } catch (err) {
     console.log(err);
     res.status(err.status || 500).json(err.message);
@@ -170,4 +206,6 @@ module.exports = {
   rentcarReviewDelete,
   rentCarReserve,
   getMyRentCarReview,
+  getMyRentCarReserve,
+  insertreview,
 };

@@ -171,6 +171,8 @@ const searchCarList = async (params) => {
 };
 
 const rentcarfiltereddata = async (params) => {
+  console.log(params);
+
   let param = [];
   let query = `with a as(
     select rentcarinfo.id, rentcarinfo.carname, rentcarinfo.carPhoto, rentcarinfo.ridePeopleNumber, rentcarinfo.oilType
@@ -275,14 +277,72 @@ const rentcarfiltereddata = async (params) => {
   }
 
   query += `),
+  d as(
+    select 
+      json_object(
+        'id', 0,
+        'type', '가격 범위',
+        'slideList', json_array(min(rentcarprice.price), max(rentcarprice.price)) 
+      ) as filterPrice
+    from rentcarprice
+    left join rentcompanycar on rentcarprice.rentcompanycarid = rentcompanycar.id
+    left join rentcarinfo on rentcompanycar.rentcarinfoid = rentcarinfo.id
+    where rentcarprice.insuranceid = ? and rentcarprice.ageid in (?) and rentcarprice.experienceid in (?) and rentcarinfo.carType in (?) 
+  ),
+
+  e as(
+    select json_object(
+      'id', 1,
+      'type', '연식',
+      'checkList', json_arrayagg(rentcaryearinfo.yearinfo) ) as filterYear
+      from rentcaryearinfo
+  ),
+  
+  f as(
+    select json_object(
+      'id', 2,
+      'type', '옵션',
+      'checkList', json_arrayagg(rentcaroption.optionname) ) as filterOption
+      from rentcaroption
+  ),
+
+  g as(
+    select json_object(
+      'id', 3,
+      'type', '누적예약',
+      'slideList', json_array(min(rentcompanycar.totalReserve), max(rentcompanycar.totalReserve))) as filterReserve
+      from rentcompanycar
+      left join rentcarprice on rentcompanycar.id = rentcarprice.rentcompanycarId
+      left join rentcarinfo on rentcompanycar.rentcarinfoid = rentcarinfo.id
+      where rentcarprice.insuranceid = ? and rentcarprice.ageid in (?) and rentcarprice.experienceid in (?) and rentcarinfo.carType in (?)
+  ),
+
   h as(
     select distinct carList.count, carList.carname, carList.carphoto, carList.ridepeoplenumber, carList.oiltype, carList.companyandprice, carList.options
       from (select b.count, a.carname, a.carphoto, a.ridepeoplenumber, a.oiltype, b.companyandprice, c.options from a join b on a.id = b.id join c on a.id = c.id) as carList
       
+  ),
+
+  i as(
+    select json_array(filterList.filterPrice, filterList.filterYear, filterList.filterOption, filterList.filterReserve) filterTypes
+    from (select d.filterPrice, e.filterYear, f.filterOption, g.filterReserve from d join e join f join g) as filterList
   )
-  select sum(h.count) totalCount,json_arrayagg(json_object("carName",h.carname,"carPhoto", h.carphoto, "ridePeopleNumber",h.ridepeoplenumber, "oilType",h.oiltype, "rentCarCompanyList",h.companyandprice, "option",h.options)) carList
-  from h;
+
+  select sum(h.count) totalCount, i.filterTypes, json_arrayagg(json_object("carName",h.carname,"carPhoto", h.carphoto, "ridePeopleNumber",h.ridepeoplenumber, "oilType",h.oiltype, "rentCarCompanyList",h.companyandprice, "option",h.options)) carList
+  from h
+  join i
+  group by i.filterTypes;
   `;
+  param.push(
+    params.get("insurance"),
+    params.get("age"),
+    params.get("experience"),
+    params.get("carType"),
+    params.get("insurance"),
+    params.get("age"),
+    params.get("experience"),
+    params.get("carType")
+  );
   const filtereddata = await myDataSource.query(query, param);
   return filtereddata;
 };
@@ -423,6 +483,18 @@ const rentcarReviewDelete = async (userId, reviewid) => {
 };
 
 const getRentCarDetail = async (rentCompanyCarId) => {
+  const existCar = await myDataSource.query(
+    `
+      select exists(select * from rentcarprice where rentcarprice.rentcompanycarid = ?) as success
+    `,
+    [rentCompanyCarId]
+  );
+  if (existCar[0].success === "0") {
+    const err = new Error("없는 차량입니다");
+    err.status = 404;
+    throw err;
+  }
+
   const rentcarDetail = await myDataSource.query(
     `
       with review as(
@@ -449,7 +521,7 @@ const getRentCarDetail = async (rentCompanyCarId) => {
       )
       select 
         
-        rentcarinfo.carName, rentcarinfo.ridePeopleNumber, rentcarinfo.oilType, rentcaryearinfo.yearinfo,
+        rentcarinfo.carName, rentcarinfo.ridePeopleNumber, rentcarinfo.oilType, rentcaryearinfo.yearinfo, rentcarinfo.carPhoto,
         rentcardriveexperience.experience, rentcardriveage.age, rentcardriveinsurance.insurance, rentcarprice.price, rentcarprice.options,
         rentcarcompany.rentCarCompany, rentcarcompany.rentCarCompanyAddress, rentcarcompany.rentCarCompanyPhoneNumber, rentcarcompany.mapaddress,
         rentcarcompany.rentPlace, rentcarcompany.shuttlePlace, rentcarcompany.shuttleSchedule, rentcarcompany.shuttleInterval, rentcarcompany.shuttleRequiredTime,
@@ -478,14 +550,16 @@ const getRentCarDetail = async (rentCompanyCarId) => {
 };
 
 const rentCarReserve = async (params) => {
-  const startdate = new Date(params.rentStartDate);
-  const enddate = new Date(params.rentEndDate);
+  const rentstartdate = params.rentStartDate.split(".").join("-");
+  const rentenddate = params.rentEndDate.split(".").join("-");
+  const startdate = new Date(rentstartdate);
+  const enddate = new Date(rentenddate);
   const dateArr = [];
   while (startdate <= enddate) {
     dateArr.push(startdate.toISOString().split("T")[0]);
     startdate.setDate(startdate.getDate() + 1);
   }
-  console.log(dateArr);
+  console.log("dateArr: ", dateArr);
   const reservedata = await myDataSource.query(
     `
       insert into rentcarreservation(userid, rentcarid, rentdate, returndate, price)
@@ -499,7 +573,7 @@ const rentCarReserve = async (params) => {
       params.price,
     ]
   );
-  reservedata.insertId;
+
   for (let i = 0; i < dateArr.length; i++) {
     await myDataSource.query(
       `
@@ -526,6 +600,98 @@ const getMyRentCarReview = async (userId) => {
   return reviewData;
 };
 
+const insertreview = async () => {
+  // userId 3~12
+  // rentcarId
+  // review
+  // kindPoint
+  // cleanPoint
+  // conveniencePoint
+  const reviewList = [
+    "차량 상태가 너무 좋아요!!!",
+    "이게 차냐.. 자전거가 더 좋을듯;;",
+    "너무너무 좋은거같아요 매일 이 차만 타고싶어요",
+    "완벽한 주행... 행복...",
+    "시몬스 침대마냥 흔들림이 없네요 덕분에 조수석에서 꿀잠 잤습니다.",
+    "차에서 햄버거 먹다가 콜라 조금 흘렸는데 세차비 안받으셨어요 감사합니다...",
+    "감사합니다.",
+    "좋아요",
+  ];
+  for (i = 18; i < 2039; i++) {
+    const randomreview =
+      reviewList[Math.floor(Math.random() * reviewList.length)];
+    await myDataSource.query(
+      `
+      update rentedcarreview set review = ? where id = ?;
+    `,
+      [randomreview, i]
+    );
+  }
+};
+
+// 차량 정보들(이름,사진,보험,나이,경력,차종), 렌트시작일, 반납일, 가격, 예약시간, 예약자 정보(이름,번호,이메일), 업체정보(주소,번호,이름,셔틀)
+const getMyRentCarReserve = async (userId, reservationid) => {
+  let params = [userId];
+  let query = `
+      with carinfo as(
+        select json_object("carname",rentcarinfo.carname, "carphoto",rentcarinfo.carphoto, "cartype",rentcarinfo.cartype, "driveage",rentcardriveage.age, "driveexperience",rentcardriveexperience.experience, "driveinsurance",rentcardriveinsurance.insurance) carinfo
+        from rentcarreservation
+        left join users on rentcarreservation.userid = users.id
+        left join rentcompanycar on rentcarreservation.rentcarid = rentcompanycar.id
+        left join rentcarinfo on rentcompanycar.rentcarinfoid = rentcarinfo.id
+        left join rentcarprice on rentcompanycar.id = rentcarprice.rentcompanycarid
+        left join rentcardriveage on rentcarprice.ageid = rentcardriveage.id
+        left join rentcardriveinsurance on rentcarprice.insuranceid = rentcardriveinsurance.id
+        left join rentcardriveexperience on rentcarprice.experienceId = rentcardriveexperience.id
+        where rentcarreservation.userid = ? `;
+  if (reservationid) {
+    query += `and rentcarreservation.id = ?`;
+    params.push(reservationid);
+  }
+  query += `),
+
+      reserveinfo as(
+        select json_object("reservationid", rentcarreservation.id, "rentdate",rentcarreservation.rentdate, "returndate",rentcarreservation.returndate, "price",rentcarreservation.price, "created_at",DATE_FORMAT(rentcarreservation.created_at, '%Y-%m-%d')) reserveinfo
+        from rentcarreservation
+        where rentcarreservation.userid = ? `;
+
+  params.push(userId);
+
+  if (reservationid) {
+    query += `and rentcarreservation.id = ?`;
+    params.push(reservationid);
+  }
+  query += `),
+
+      userinfo as(
+        select json_object("username",users.name, "userphonenumber",users.phoneNumber, "useremail",users.email) userinfo
+        from users
+        where users.id = ?
+      ),
+
+      companyinfo as(
+        select json_object("rentcarcompanyname",rentcarcompany.rentcarcompany, "rentcarcompanyphonenumber",rentcarcompany.rentcarcompanyphonenumber, "rentcarcompanyaddress",rentcarcompany.rentcarcompanyaddress, "rentplace",rentcarcompany.rentplace, "shuttleplace",rentcarcompany.shuttleplace, "shuttleschedule",rentcarcompany.shuttleschedule, "shuttleinterval",rentcarcompany.shuttleinterval, "shuttlerequiredtime",rentcarcompany.shuttlerequiredtime, "mapaddress",rentcarcompany.mapaddress) companyinfo
+        from rentcarreservation
+        left join rentcompanycar on rentcarreservation.rentcarid = rentcompanycar.id
+        left join rentcarcompany on rentcompanycar.rentcarcompanyid = rentcarcompany.id
+        where rentcarreservation.userid = ? `;
+  params.push(userId, userId);
+  if (reservationid) {
+    query += `and rentcarreservation.id = ?`;
+    params.push(reservationid);
+  }
+  query += `)
+
+      select distinct userinfo.userinfo, reserveinfo.reserveinfo, carinfo.carinfo, companyinfo.companyinfo
+      from userinfo
+      join reserveinfo
+      join carinfo
+      join companyinfo;
+    `;
+  const reservedata = await myDataSource.query(query, params);
+  return reservedata;
+};
+
 module.exports = {
   registeRentCar,
   registeRentCarCompany,
@@ -537,4 +703,6 @@ module.exports = {
   rentcarReviewDelete,
   rentCarReserve,
   getMyRentCarReview,
+  getMyRentCarReserve,
+  insertreview,
 };

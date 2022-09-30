@@ -12,5 +12,6 @@ router.use("/users", loginLogoutRouter);
 router.use("/token", tokenRouter);
 router.use("/lodgment", lodgmentRouter);
 router.use("/rentcar", rentCarRouter);
+router.use("/reservation", rentCarRouter);
 
 module.exports = router;
