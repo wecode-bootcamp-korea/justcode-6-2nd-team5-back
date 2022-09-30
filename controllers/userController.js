@@ -6,6 +6,20 @@ const pong = async (req, res) => {
   res.status(200).json({ message: 'pong' });
 };
 
+const userCheck = async (req,res) => {
+  console.log('START userCheckEmail')
+  const {email} = req.params
+  const userEmail = await userService.checkEmailDuplicate(email);
+  
+  if (userEmail) {
+    res.status(400).json({ message: '이미 사용중인 이메일입니다.' });
+    return;
+  }else {
+    res.status(200).json({ message: '사용 가능한 이메일입니다'})
+    return;
+  }
+}
+
 const createUser = async (req, res) => {
   console.log('START createUserController');
 
@@ -112,5 +126,6 @@ const sendUserName = async (req, res) => {
 module.exports = {
   createUser,
   pong,
+  userCheck,
   //sendUserName,
 };
